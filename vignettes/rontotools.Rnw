@@ -1,0 +1,222 @@
+%\VignetteIndexEntry{ROntoTools}
+%\VignetteDepends{ROntoTools}
+%\VignettePackage{ROntoTools}
+
+
+\documentclass[11pt]{article}
+
+\usepackage{hyperref}
+\usepackage[margin=1in]{geometry}
+
+\newcommand{\Rfunction}[1]{{\texttt{#1}}}
+\newcommand{\Rmethod}[1]{{\texttt{#1}}}
+
+\newcommand{\Robject}[1]{{\texttt{#1}}}
+\newcommand{\Rpackage}[1]{{\textit{#1}}}
+\newcommand{\Rclass}[1]{{\textit{#1}}}
+
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+\title{ROntoTools: The R Onto-Tools suite}
+\author{Calin Voichita and Sorin Draghici\\
+Department of Computer Science, Wayne State University, Detroit MI 48201}
+\maketitle
+
+\begin{abstract}
+%This package contains the R implementation of the web-based data mining and analysis suite tools called Onto-Tools.  Among these,  Onto-Express (OE) was the first publicly available tool for the GO profiling of high throughput data. The paper describing it and a follow up paper discussing various statistical models that can be used for this purpose~\cite{Khatri:2002, DraghiciOE2:2003} summed up over 450 citations to date. OE was then followed by
+%Onto-Compare~\cite{DraghiciOT:2003,DraghiciOC:2003},
+%Onto-Design~\cite{DraghiciOT:2003,DraghiciOT:2004},
+%Onto-Translate~\cite{DraghiciOT:2003,DraghiciOT:2005,DraghiciOT:2006,DraghiciOntoTranslate:2006}, Onto-Miner~\cite{DraghiciOT:2004},
+% Promoter-Express~\cite{DraghiciOT:2006,DraghiciValmik:2005}, nsSNPCounter~\cite{DraghiciOT:2006}
+%OE2GO~\cite{Khatri:2007}, and Pathway-Express~\cite{DraghiciPE:2007,Khatri:2007a}. We currently have over 10,000 registered users  from 53 countries. Approximately, 5,000 of these are regular users (more than 10 data sets processed). This R package will provide these users with access to the direct functionalities of the online version, to new analysis methods and also expose the tools to a larger audience.
+
+This package is indented to be the R implementation of the web-based data mining and analysis suite of tools called Onto-Tools~\cite{Khatri:2002, DraghiciOE2:2003, DraghiciOT:2003, DraghiciOC:2003, DraghiciOT:2004, DraghiciOT:2003, DraghiciOT:2005, DraghiciOT:2006, DraghiciOntoTranslate:2006, DraghiciOT:2004, DraghiciOT:2006, DraghiciValmik:2005, DraghiciOT:2006, Khatri:2007, DraghiciPE:2007,Khatri:2007a}. 
+Among these,  Onto-Express (OE) was the first publicly available tool for the GO profiling of high throughput data and Pathway-Express (PE) the first tool to perform analysis of signaling pathways using important biological factors like all the interactions between the genes, the type of interaction between them and the position and magnitude of expression change for all the differentially expressed genes. 
+We currently have over 10,000 registered users  from 53 countries. Approximately, 5,000 of these are regular users (more than 10 data sets processed).
+This R package will provide these users with access to the direct functionalities of the online version, to new analysis methods and also expose the tools to a larger audience. 
+As part of the first version, the pathway analysis tool Pathway-Express is made available.
+
+\end{abstract}
+
+
+\section{Pathway-Express}
+
+Pathway-Express (\Rmethod{pe}) is a tool for the analysis of signaling pathways.
+Besides the original implementation~\cite{DraghiciPE:2007, TarcaSPIA:2009}, this tool implements a number of improvements proposed in~\cite{Voichita:2012} that include the incorporation of gene significance and the elimination of the need to select differentially expressed genes.
+Pathway-Express uses two sources of data: one is the experiment data and the other is the database of pathways.
+
+\subsection{Pathway database}
+
+Pathway-Express is a general tool that accepts any set of signaling pathways defined using the standard implementation provided in the \Rpackage{graph} package. The only requirement is that each pathway, defined as an object of type \Rclass{graph}, has a weight defined for each edge, representing the efficiency of the propagation between the two genes, and a weight for each node, that will capture the type of gene or the significance of the measured expression change.
+This package provides tools to access the KEGG database for signaling pathways and also tools to set these weights.
+
+For example, to download and parse the signaling pathways available in KEGG use:
+<<eval=TRUE, echo=TRUE>>=
+require(graph)
+require(ROntoTools)
+kpg <- keggPathwayGraphs("hsa", verbose = FALSE)
+@
+
+The above code will load the available cached data for human (i.e., KEGG id \emph{hsa}). To update the cache and download the latest KEGG pathways available use the \Rfunction{updateCache} parameter:
+<<eval=FALSE, echo=TRUE>>=
+kpg <- keggPathwayGraphs("hsa", updateCache = TRUE, verbose = TRUE)
+@
+\noindent This command is time consuming and depends on the available bandwith.
+
+
+The \Robject{kpg} is a list of \Rclass{graph} objectes:
+<<eval=TRUE, echo=TRUE>>=
+head(names(kpg))
+@
+
+\noindent To inspect one of the pathway graphs, only the ID is required. Here is an example for the Cell Cycle: %(Fig.~\ref{fig:cellCycle}):
+<<eval=TRUE, echo=TRUE>>=
+kpg[["path:hsa04110"]]
+head(nodes(kpg[["path:hsa04110"]]))
+head(edges(kpg[["path:hsa04110"]]))
+@
+
+In addition the parser extracted the type of interaction for each gene-gene interaction in an attribute called \Rfunction{subtype}:
+<<eval=TRUE, echo=TRUE>>=
+head(edgeData(kpg[["path:hsa04110"]], attr = "subtype"))
+@
+
+Using this attribute the function \Rfunction{setEdgeWeights} sets the same weight for all the interactions of the same type:
+<<eval=TRUE, echo=TRUE>>=
+kpg <- setEdgeWeights(kpg, edgeTypeAttr = "subtype", 
+	edgeWeightByType = list(activation = 1, inhibition = -1, 
+		expression = 1, repression = -1), 
+	defaultWeight = 0)
+@
+
+At this point, \Robject{kpg} contains a list of graphs with weighted edges:
+<<eval=TRUE, echo=TRUE>>=
+head(edgeData(kpg[["path:hsa04110"]], attr = "weight"))
+@
+
+To retrieve the title of the pathways and not just their ids the function \Rfunction{keggPathwayNames} can be used:
+<<eval=TRUE, echo=TRUE>>=
+kpn <- keggPathwayNames("hsa")
+head(kpn)
+@
+
+
+\subsection{Experiment data}
+
+As an example, we provided a pre-processed data set from ArrayExpress (\href{http://www.ebi.ac.uk/arrayexpress/experiments/E-GEOD-21942/}{E-GEOD-21942}) that studies the expression change in peripheral blood mononuclear cells (PBMC) between 12 MS patients and 15 controls. The data was preprocessed using the \Rpackage{limma} package. Only probe sets with a gene associated to them have been kept and for each gene only the most significant probe set has been selected (the table is already ordered by p-value):
+
+<<eval=TRUE, echo=TRUE>>=
+load(system.file("extdata/E-GEOD-21942.topTable.RData", package = "ROntoTools"))
+head(top)
+@
+
+%The next step is to eliminate probes with no associated gene:
+%<<eval=TRUE, echo=TRUE>>=
+%top <- top[!is.na(top$entrez),]
+%head(top)
+%@
+%
+%For each gene keep only the most significant probe (the table is already ordered by p-value):
+%<<eval=TRUE, echo=TRUE>>=
+%top <- top[!duplicated(top$entrez),]
+%head(top)
+%@
+
+Select differentially expressed genes at 1\% and save their fold change in a vector $fc$ and their p-values in a vector $pv$:
+<<eval=TRUE, echo=TRUE>>=
+fc <- top$logFC[top$adj.P.Val <= .01]
+names(fc) <- top$entrez[top$adj.P.Val <= .01]
+
+pv <- top$P.Value[top$adj.P.Val <= .01]
+names(pv) <- top$entrez[top$adj.P.Val <= .01]
+
+head(fc)
+
+head(pv)
+@
+
+Alternatively, an analysis with all genes can be performed:
+<<eval=TRUE, echo=TRUE>>=
+fcAll <- top$logFC
+names(fcAll) <- top$entrez
+
+pvAll <- top$P.Value
+names(pvAll) <- top$entrez
+@
+
+The reference contains all the genes measured in the analysis:
+<<eval=TRUE, echo=TRUE>>=
+ref <- top$entrez
+head(ref)
+@
+
+\subsection{Setting the node weights}
+
+The node weights are used to encode for the significance of each gene,  the term described as $\alpha$ in \cite{Voichita:2012}. The two alternative formulas to incorporate the gene significance:
+\begin{equation}
+\alpha = 1 - p /  p_{thr}~and~\alpha =  - log( p /  p_{thr})
+\end{equation}
+are implemented as two function \Rfunction{alpha1MR} and \Rfunction{alphaMLG}.
+
+To set the node weights the function \Rfunction{setNodeWeights} is used:
+<<eval=TRUE, echo=TRUE>>=
+kpg <- setNodeWeights(kpg, weights = alphaMLG(pv), defaultWeight = 1)
+head(nodeWeights(kpg[["path:hsa04110"]]))
+@
+
+\subsection{Pathway analysis and results summary}
+
+Up to this point all the pieces need for the analysis have been assembled:
+\begin{itemize}
+\item the pathway database with the experiment specific gene significance - \Robject {kpg}
+\item the experiment data - \Robject{fc} and \Robject{ref}
+\end{itemize}
+
+\noindent To perform the analysis the function \Rfunction{pe} is used (increase the parameter \Robject{nboot} to obtain more accurate results:
+<<eval=TRUE, echo=TRUE>>=
+peRes <- pe(x = fc, graphs = kpg, ref = ref,  nboot = 200, verbose = FALSE)
+@
+
+The result object can be summarized in a table format with the desired columns using the function \Rfunction{Summary}:
+<<eval=TRUE, echo=TRUE>>=
+head(Summary(peRes))
+
+head(Summary(peRes, pathNames = kpn, totalAcc = FALSE, totalPert = FALSE,
+             pAcc = FALSE, pORA = FALSE, comb.pv = NULL, order.by = "pPert"))
+@
+
+Here is an example of how to visualize a pathway as analyzed by Pathway-Express (see Fig.~\ref{fig:thyroid}):
+
+<<label=fig1plot,include=FALSE>>=
+plot(peRes@pathways[["path:hsa05216"]]@map)
+@
+
+\begin{figure}
+\begin{center}
+<<label=fig1,fig=TRUE,echo=FALSE>>=
+<<fig1plot>>
+@
+\end{center}
+\caption{Thytroid cancer pathway map as used by Pathway-Express}
+\label{fig:thyroid}
+\end{figure}
+
+Other information can also be extracted from the \Robject{peRes}, like the genes with assigned fold changes on the current pathway:
+<<eval=TRUE, echo=TRUE>>=
+peRes@pathways[["path:hsa05216"]]@input
+@
+\noindent the reference genes in the pathway:
+<<eval=TRUE, echo=TRUE>>=
+peRes@pathways[["path:hsa05216"]]@ref
+@
+\noindent the amount of perturbation at each gene:
+<<eval=TRUE, echo=TRUE>>=
+peRes@pathways[["path:hsa05216"]]@PF
+@
+
+
+\bibliographystyle{abbrv}
+\bibliography{rontotools}
+
+\end{document}

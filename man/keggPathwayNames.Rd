@@ -1,0 +1,37 @@
+\name{keggPathwayNames}
+\alias{keggPathwayNames}
+\title{Obtain KEGG pathway titles}
+\usage{
+  keggPathwayNames(organism = "hsa", updateCache = FALSE,
+    verbose = TRUE)
+}
+\arguments{
+  \item{organism}{organism code as defined by KEGG}
+
+  \item{updateCache}{re-download KEGG data}
+
+  \item{verbose}{show progress of downloading and parsing}
+}
+\value{
+  A named vector of pathway titles. The names of the vector
+  are the pathway KEGG IDs.
+}
+\description{
+  Obtain KEGG pathway titles
+}
+\examples{
+kpn <- keggPathwayNames("hsa")
+
+# to update the pathway cache for human run:
+# kpn <- keggPathwayNames("hsa", updateCache = TRUE)
+# this is time consuming and depends on the available bandwith.
+
+head(kpn)
+}
+\author{
+  Calin Voichita and Sorin Draghici
+}
+\seealso{
+  \code{\link{keggPathwayGraphs}}
+}
+

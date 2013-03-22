@@ -1,0 +1,25 @@
+
+VERSION 1.0.0
+--------
+
+Initial release of package ROntoTools includes:
+
+* pe: Pathway analysis tool Pathway-Express with the following features:
+    - perform pathway analysis on pathways defined in the standard graph format
+provided by the package graph
+    - perform the analysis using either differentially expressed (DE) genes or
+using a cut-of-free analysis
+    - when available, use both information related to the strangth of the inter-
+action between the genes (as edgeWeights) and the relevance of each gene (as 
+nodeWeights)
+    - the results are summerized using the generic function Summary
+
+* keggPathwayGraphs/keggPathwayNames: Utility to download and parse the KEGG 
+pathways data in graph objects:
+    - based on the work in the packages KEGGREST and KEGGgraph
+
+* nodeWeigths: the missing generic convenience function from package graph to 
+get the node weights of a graph
+
+* alpha1MR/alphaMLG: two utilites to transform the a vector of p-values into 
+weights to be used as nodeWeights

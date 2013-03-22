@@ -1,0 +1,31 @@
+\name{alpha1MR}
+\alias{alpha1MR}
+\title{Compute alpha weights}
+\usage{
+  alpha1MR(pv, threshold = max(pv))
+}
+\arguments{
+  \item{pv}{vector of p-values}
+
+  \item{threshold}{the threshold value that was used to
+  select DE genes}
+}
+\description{
+  Transform a vector of p-values into weights.
+}
+\details{
+  Computes a set of weights from p-values using the formula
+  \code{1-pv/threshold}.
+}
+\examples{
+load(system.file("extdata/E-GEOD-21942.topTable.RData", package = "ROntoTools"))
+
+head(alpha1MR(top$adj.P.Val))
+}
+\author{
+  Calin Voichita and Sorin Draghici
+}
+\seealso{
+  \code{\link{pe}}
+}
+
