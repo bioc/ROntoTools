@@ -58,7 +58,7 @@ loadKEGGpathwayDataREST <- function(organism = "hsa",
 #' @param targRelTypes target relation types
 #' @param relPercThresh percentage of the number of relation types over all possible realtions in the pathway
 #' @param nodeOnlyGraphs allow graphs with no edges
-#' @param updateCache re-downlaod KEGG data
+#' @param updateCache re-download KEGG data
 #' @param verbose show progress of downloading and parsing
 #' 
 #' @return
@@ -194,7 +194,7 @@ keggPathwayGraphs <- function(organism = "hsa",
 #' 
 #' # to update the pathway cache for human run:
 #' # kpn <- keggPathwayNames("hsa", updateCache = TRUE)
-#' # this is time consuming and depends on the available bandwith.
+#' # this is time consuming and depends on the available bandwidth.
 #' 
 #' head(kpn)
 #' 

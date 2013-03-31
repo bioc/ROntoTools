@@ -32,7 +32,7 @@
 #' 
 #' @seealso
 #' 
-#' \link{nodes} \link{nodeData}
+#' \link{nodes}, \link{nodeData}
 #' 
 #' @examples
 #' 
@@ -43,7 +43,6 @@
 #' nodeWeights(g, "B")
 #' nodeWeights(g, attr = "WT", default = 3)
 #' 
-#' @docType methods
 #' @rdname nodeWeights
 #' 
 #' @export

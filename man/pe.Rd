@@ -13,7 +13,7 @@
 
   \item{graphs}{list of pathway graphs as objects of type
   \code{graph} (e.g., \code{\link{graphNEL}}); the graphs
-  must be weighted graphs (i.e., have an atrribute
+  must be weighted graphs (i.e., have an attribute
   \code{weight} for both nodes and edges)}
 
   \item{ref}{the reference vector for all genes in the
@@ -118,7 +118,9 @@ head(Summary(peRes))
   17, 2007.
 }
 \seealso{
-  \code{\link{Summary}} \code{\link{keggPathwayGraphs}}
-  \code{\link{setNodeWeights}} \code{\link{setEdgeWeights}}
+  \code{\link{Summary}}, \code{\link{plot.peRes}},
+  \code{\link{keggPathwayGraphs}},
+  \code{\link{setNodeWeights}},
+  \code{\link{setEdgeWeights}}
 }
 

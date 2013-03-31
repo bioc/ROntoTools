@@ -173,7 +173,7 @@ Up to this point all the pieces need for the analysis have been assembled:
 \item the experiment data - \Robject{fc} and \Robject{ref}
 \end{itemize}
 
-\noindent To perform the analysis the function \Rfunction{pe} is used (increase the parameter \Robject{nboot} to obtain more accurate results:
+\noindent To perform the analysis the function \Rfunction{pe} is used (increase the parameter \Robject{nboot} to obtain more accurate results):
 <<eval=TRUE, echo=TRUE>>=
 peRes <- pe(x = fc, graphs = kpg, ref = ref,  nboot = 200, verbose = FALSE)
 @
@@ -186,34 +186,108 @@ head(Summary(peRes, pathNames = kpn, totalAcc = FALSE, totalPert = FALSE,
              pAcc = FALSE, pORA = FALSE, comb.pv = NULL, order.by = "pPert"))
 @
 
-Here is an example of how to visualize a pathway as analyzed by Pathway-Express (see Fig.~\ref{fig:thyroid}):
+\subsection{Graphical representation of results}
 
-<<label=fig1plot,include=FALSE>>=
-plot(peRes@pathways[["path:hsa05216"]]@map)
+To visualize the summary of the Pathway-Express results use the function \Rfunction{plot} (see Fig.~\ref{fig:twoway}):
+
+<<label=peRes_twoway1,include=FALSE>>=
+plot(peRes)
+@
+
+<<label=peRes_twoway2,include=FALSE>>=
+plot(peRes, c("pAcc", "pORA"), comb.pv.func = compute.normalInv, threshold = .01)
 @
 
 \begin{figure}
 \begin{center}
+\resizebox{!}{4in}{
 <<label=fig1,fig=TRUE,echo=FALSE>>=
-<<fig1plot>>
+<<peRes_twoway1>>
 @
+}
+\resizebox{!}{4in}{
+<<label=fig2,fig=TRUE,echo=FALSE>>=
+<<peRes_twoway2>>
+@
+}
 \end{center}
-\caption{Thytroid cancer pathway map as used by Pathway-Express}
-\label{fig:thyroid}
+\caption{Two-way plot of Pathway-Express result}
+\label{fig:twoway}
 \end{figure}
 
-Other information can also be extracted from the \Robject{peRes}, like the genes with assigned fold changes on the current pathway:
-<<eval=TRUE, echo=TRUE>>=
-peRes@pathways[["path:hsa05216"]]@input
+Pathway level statistics can also be displayed one at a time using the function \Rfunction{plot}~(see Fig.~\ref{fig:pePathway_pAcc}):
+
+<<label=pePathway_twoway_Acc,include=FALSE>>=
+plot(peRes@pathways[["path:hsa05216"]], type = "two.way")
 @
-\noindent the reference genes in the pathway:
-<<eval=TRUE, echo=TRUE>>=
-peRes@pathways[["path:hsa05216"]]@ref
+
+<<label=pePathway_boot_Acc,include=FALSE>>=
+plot(peRes@pathways[["path:hsa05216"]], type = "boot")
 @
-\noindent the amount of perturbation at each gene:
-<<eval=TRUE, echo=TRUE>>=
-peRes@pathways[["path:hsa05216"]]@PF
+
+\begin{figure}
+\begin{center}
+\resizebox{!}{4in}{
+<<label=fig3,fig=TRUE,echo=FALSE>>=
+<<pePathway_twoway_Acc>>
 @
+}
+\resizebox{!}{4in}{
+<<label=fig4,fig=TRUE,echo=FALSE>>=
+<<pePathway_boot_Acc>>
+@
+}
+\end{center}
+\caption{Pathway level statistiscs: perturbation accumulation versus the measured expression change (above) and the bootstrap simulations of the perturbation accumulation (below).}
+\label{fig:pePathway_pAcc}
+\end{figure}
+
+To visualize the propagation across the pathway, two functions - \Rfunction{peNodeRenderInfo} and \Rfunction{peEdgeRenderInfo} - are provided to extract the required information from a \Robject{pePathway} object:
+
+<<label=pePathway_graph_Pert,include=FALSE>>=
+p <- peRes@pathways[["path:hsa05216"]]
+g <- layoutGraph(p@map, layoutType = "dot")
+graphRenderInfo(g) <- list(fixedsize = FALSE)
+edgeRenderInfo(g) <- peEdgeRenderInfo(p)
+nodeRenderInfo(g) <- peNodeRenderInfo(p)
+renderGraph(g)
+@
+
+This is the \emph{Thyroid cancer} signaling pathway and is shown in Fig.~\ref{fig:pePathway_graph}. Another example is the \emph{T cell receptor signaling pathway} and is presented in Fig.~\ref{fig:pePathway_graph2}.
+
+<<label=pePathway_graph_Pert2,include=FALSE,echo=FALSE>>=
+p <- peRes@pathways[["path:hsa04660"]]
+g <- layoutGraph(p@map, layoutType = "dot")
+graphRenderInfo(g) <- list(fixedsize = FALSE)
+edgeRenderInfo(g) <- peEdgeRenderInfo(p)
+nodeRenderInfo(g) <- peNodeRenderInfo(p)
+renderGraph(g)
+@
+
+
+\begin{figure}
+\begin{center}
+\resizebox{!}{4in}{
+<<label=fig5,fig=TRUE,echo=FALSE>>=
+<<pePathway_graph_Pert>>
+@
+}
+\end{center}
+\caption{Perturbation propagation on the  \emph{Thyroid cancer signaling pathway}. }
+\label{fig:pePathway_graph}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\resizebox{!}{6.5in}{
+<<label=fig6,fig=TRUE,echo=FALSE>>=
+<<pePathway_graph_Pert2>>
+@
+}
+\end{center}
+\caption{Perturbation propagation on the \emph{T cell receptor signaling pathway}.}
+\label{fig:pePathway_graph2}
+\end{figure}
 
 
 \bibliographystyle{abbrv}

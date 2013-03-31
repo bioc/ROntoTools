@@ -47,7 +47,9 @@
 #' head(Summary(peRes, pathNames = kpn, totalAcc = FALSE, totalPert = FALSE, 
 #'              pAcc = FALSE, pORA = FALSE, comb.pv = NULL, order.by = "pPert"))
 #' 
+#' @rdname Summary-methods
 #' 
+#' @aliases Summary.peRes
 #' @aliases Summary,peRes-method
 #' @export
 setMethod("Summary", c("x" = "peRes"),
@@ -74,14 +76,23 @@ setMethod("Summary", c("x" = "peRes"),
               pStats$pPert <- ifelse(pPert, compute.pPert(pePath), NULL)
               pStats$pAcc <- ifelse(pAcc, compute.pAcc(pePath), NULL)
               
-              if (pORA & peRes@cutOffFree)
-                warning("The over-representaion p-value is not defined for cut-off free analysis and will not be computed!")  
-              pStats$pORA <- ifelse(pORA & !peRes@cutOffFree, compute.pORA(pePath, length(peRes@input), length(peRes@ref)), NULL)
+              pStats$pORA <- ifelse(pORA & !x@cutOffFree, compute.pORA(pePath, length(x@input), length(x@ref)), NULL)
               
               pStats$pComb <- ifelse(!is.null(comb.pv) & !any(is.null(pStats[comb.pv])), 
                                      as.numeric(comb.pv.func(unlist(pStats[comb.pv]))), NULL)
               
               return(unlist(pStats))
+            }
+            
+            if (pORA & x@cutOffFree)
+            {
+              pORA <- FALSE
+              if ("pORA" %in% comb.pv)
+              {
+                order.by <- setdiff(comb.pv, "pORA")[1]
+                comb.pv <- NULL
+              }
+              message("The over-representaion p-value is not defined for cut-off free analysis and will not be computed!")  
             }
             
             if(!is.null(comb.pv))
@@ -98,7 +109,7 @@ setMethod("Summary", c("x" = "peRes"),
               }
             }
             
-            topStats <- data.frame(do.call(rbind, lapply(peRes@pathways, pathStats)))
+            topStats <- data.frame(do.call(rbind, lapply(x@pathways, pathStats)))
             
             if(!is.null(pathNames))
             {

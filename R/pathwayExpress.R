@@ -2,7 +2,7 @@
 #' 
 #' 
 #' @param x named vector of log fold changes for the differentially expressed genes; \code{names(x)} must use the same id's as \code{ref} and the nodes of the \code{graphs}
-#' @param graphs list of pathway graphs as objects of type \code{graph} (e.g., \code{\link{graphNEL}}); the graphs must be weighted graphs (i.e., have an atrribute \code{weight} for both nodes and edges)
+#' @param graphs list of pathway graphs as objects of type \code{graph} (e.g., \code{\link{graphNEL}}); the graphs must be weighted graphs (i.e., have an attribute \code{weight} for both nodes and edges)
 #' @param ref the reference vector for all genes in the analysis; if the reference is not provided or it is identical to \code{names(x)} a cut-off free analysis is performed
 #' @param nboot number of bootstrap iterations
 #' @param verbose print progress output
@@ -31,7 +31,8 @@
 #' 
 #' Draghici S., Khatri P., Tarca A.L., Amin K., Done A., Voichita C., Georgescu C., Romero R.: "A systems biology approach for pathway level analysis". Genome Research, 17, 2007. 
 #' 
-#' @seealso \code{\link{Summary}} \code{\link{keggPathwayGraphs}} \code{\link{setNodeWeights}} \code{\link{setEdgeWeights}}
+#' @seealso \code{\link{Summary}}, \code{\link{plot.peRes}}, 
+#' \code{\link{keggPathwayGraphs}}, \code{\link{setNodeWeights}}, \code{\link{setEdgeWeights}}
 #' 
 #' @examples
 #' 
@@ -223,8 +224,8 @@ pe.boot <- function(g, x, ref, nboot, all.genes = F)
   xx <- rep(0, nrow(inv))
   names(xx) <- rownames(inv)
   xx[names(pePath@input)] <- pePath@input  
-  pePath@PF = (inv %*% xx)[,1];
-  pePath@Acc = pePath@PF - xx
+  pePath@Pert = (inv %*% xx)[,1];
+  pePath@Acc = pePath@Pert - xx
     
   return(pePath) 
 }

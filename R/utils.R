@@ -1,22 +1,3 @@
-
-#' @keywords internal
-pf2col <- function(pf)
-{
-  retcol <- rep("white", length(pf))
-  
-  ### possitive
-  i <- pf > 0
-  #retcol[i] <- rainbow(256, start = 1/6, end = 2/6)[ceiling(pf[i] / max(pf[i]) * 256)]  
-  retcol[i] <- colorRampPalette(c("white", "red"))(256)[ceiling(pf[i] / max(pf[i]) * 256)]
-  
-  i <- pf < 0
-  #retcol[i] <- rainbow(256, start = 1, end = 1/6)[256:1][ceiling(abs(pf[i]) / max(abs(pf[i])) * 256)]
-  retcol[i] <- colorRampPalette(c("white", "blue"))(256)[ceiling(abs(pf[i]) / max(abs(pf[i])) * 256)]
-  
-  names(retcol) <- names(pf)
-  return(retcol)
-}
-
 #' @keywords internal
 addNames <- function(x, nms)
 {
@@ -33,13 +14,55 @@ addNames <- function(x, nms)
 compute.bootPV <- function(real, dist)
   ( sum(abs(dist - mean(dist)) > abs(real - mean(dist))) + 1 ) / (1 + length(dist))
 
-#' @keywords internal
-compute.fischer <- function(p)
-  {k <- p[1] * p[2]; return(k-k*log(k))}
+#' Combine independent p-values using the Fischer method
+#' 
+#' @param p a vector of independent p-values
+#' @param eps the minimal p-value considered (all p-values smaller will be set to this value)
+#' 
+#' @value the combined p-value
+#' 
+#' @author Calin Voichita and Sorin Draghici
+#' 
+#' @seealso \code{\link{pe}},\code{\link{compute.normalInv}}
+#' 
+#' @examples
+#' 
+#' p <- c(.1, .01)
+#' compute.fischer(p)
+#' 
+#' @export
+compute.fischer <- function(p, eps = 1e-6)
+{
+  stopifnot(any(p >= 0 & p<=1))  
+  p[p < eps] <- eps
+  
+  k <- prod(p); 
+  return(k-k*log(k))
+}
 
-#' @keywords internal
-compute.normalInv <- function(p)
-  pnorm( (qnorm(p[1]) + qnorm(p[2])) / sqrt(2) )
+#' Combine independent p-values using the normal inversion method
+#' 
+#' @param p a vector of independent p-values
+#' @param eps the minimal p-value considered (all p-values smaller will be set to this value)
+#' 
+#' @value the combined p-value
+#' 
+#' @author Calin Voichita and Sorin Draghici
+#' 
+#' @seealso \code{\link{pe}},\code{\link{compute.fischer}}
+#' 
+#' @examples
+#' 
+#' p <- c(.1, .01)
+#' compute.normalInv(p)
+#' 
+#' @export
+compute.normalInv <- function(p, eps = 1e-6)
+{
+  stopifnot(any(p >= 0 & p<=1))  
+  p[p < eps] <- eps
+  return(pnorm(sum(sapply(p, qnorm)) / sqrt(length(p))))
+}
 
 #` @keywords internal
 graph2ftM <- function(g)

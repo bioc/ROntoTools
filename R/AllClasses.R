@@ -21,7 +21,7 @@
 #' 
 #' Calin Voichita and Sorin Draghici
 #'
-#' @seealso \code{\link{pe}} \code{\link{pePathway}}
+#' @seealso \code{\link{pe}}, \code{\link{pePathway}}
 #'
 #' @aliases peRes-class
 #' @exportClass peRes
@@ -39,12 +39,12 @@ setClass("peRes",
 #' @section Slots:
 #' 
 #' \describe{
-#'    \item{map}{an object of type graph (e.g., \code{\link{graphNEL}}).}
-#'    \item{input}{named vector of fold changes for genes on this pathway. The names of the genes are the orignal IDS used in the analysis}
-#'    \item{ref}{vector of reference IDs on this pathway}
-#'    \item{boot}{an object of class \code{boot} encoding the bootstrap information.}
-#'    \item{PF}{the gene perturbation factors for all genes on the pathway, as computed by Pathway-Express.}
-#'    \item{Acc}{the gene accumulations for all genes on the pathway, as computed by Pathway-Express.}
+#'    \item{\code{map}:}{an object of type graph (e.g., \code{\link{graphNEL}}).}
+#'    \item{\code{input}:}{named vector of fold changes for genes on this pathway. The names of the genes are the orignal IDS used in the analysis}
+#'    \item{\code{ref}:}{vector of reference IDs on this pathway}
+#'    \item{\code{boot}:}{an object of class \code{boot} encoding the bootstrap information.}
+#'    \item{\code{Pert}:}{the gene perturbation factors for all genes on the pathway, as computed by Pathway-Express.}
+#'    \item{\code{Acc}:}{the gene accumulations for all genes on the pathway, as computed by Pathway-Express.}
 #' }
 #' 
 #' @author
@@ -52,7 +52,7 @@ setClass("peRes",
 #' Calin Voichita and Sorin Draghici
 #'
 #'             
-#' @seealso \code{\link{pe}} \code{\link{peRes}}
+#' @seealso \code{\link{pe}}, \code{\link{peRes}}
 #' 
 #' @aliases pePathway-class
 #' @import graph
@@ -62,7 +62,7 @@ setClass("pePathway",
                         input = "numeric",
                         ref = "character",
                         boot = "ANY",
-                        PF = "numeric",
+                        Pert = "numeric",
                         Acc = "numeric"
          ), 
          prototype(map = new("graphNEL")

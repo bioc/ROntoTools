@@ -1,6 +1,6 @@
 \name{Summary}
-\alias{Summary}
 \alias{Summary,peRes-method}
+\alias{Summary.peRes}
 \title{Summarize the results of a Pathway-Express analysis}
 \arguments{
   \item{x}{Pathways-Express result object obtained using

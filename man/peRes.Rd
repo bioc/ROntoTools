@@ -27,6 +27,6 @@
   Calin Voichita and Sorin Draghici
 }
 \seealso{
-  \code{\link{pe}} \code{\link{pePathway}}
+  \code{\link{pe}}, \code{\link{pePathway}}
 }
 

@@ -1,4 +1,3 @@
-\docType{methods}
 \name{nodeWeights}
 \alias{nodeWeights}
 \alias{nodeWeights,graph,character-method}
@@ -68,6 +67,6 @@ nodeWeights(g, attr = "WT", default = 3)
   Calin Voichita and Sorin Draghici
 }
 \seealso{
-  \link{nodes} \link{nodeData}
+  \link{nodes}, \link{nodeData}
 }
 

@@ -1,14 +1,31 @@
 Package: ROntoTools
 Type: Package
 Title: R Onto-Tools suite
-Version: 0.99.2
+Version: 0.99.3
 Author: Calin Voichita <calin@wayne.edu> and Sorin Draghici <sorin@wayne.edu>
 Maintainer: Calin Voichita <calin@wayne.edu>
 Description: Suite of tools for functional analysis
 biocViews: NetworkAnalysis, Microarray, GraphsAndNetworks
 License: GPL (>= 3)
-Depends: R (>= 3.0.0), methods, graph, boot, KEGGREST, KEGGgraph
-Suggests: RUnit, BiocGenerics, Rgraphviz
-Collate: 'pathwayExpress.R' 'utils.R' 'graphWeights.R' 'keggDataREST.R'
-        'AllClasses.R' 'AllGenerics.R' 'nodeWeights-methods.R'
-        'pePathway-utils.R' 'Summary-methods.R'
+Depends:
+    methods,
+    graph,
+    boot,
+    KEGGREST,
+    KEGGgraph,
+    Rgraphviz
+Suggests:
+    RUnit,
+    BiocGenerics
+Collate:
+    'pathwayExpress.R'
+    'utils.R'
+    'graphWeights.R'
+    'keggDataREST.R'
+    'AllClasses.R'
+    'AllGenerics.R'
+    'nodeWeights-methods.R'
+    'pePathway-utils.R'
+    'Summary-methods.R'
+    'plot-methods.R'
+    'renderInfo-methods.R'

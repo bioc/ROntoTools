@@ -17,7 +17,7 @@
 
   \item{nodeOnlyGraphs}{allow graphs with no edges}
 
-  \item{updateCache}{re-downlaod KEGG data}
+  \item{updateCache}{re-download KEGG data}
 
   \item{verbose}{show progress of downloading and parsing}
 }

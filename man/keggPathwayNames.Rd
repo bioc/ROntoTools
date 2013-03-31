@@ -24,7 +24,7 @@ kpn <- keggPathwayNames("hsa")
 
 # to update the pathway cache for human run:
 # kpn <- keggPathwayNames("hsa", updateCache = TRUE)
-# this is time consuming and depends on the available bandwith.
+# this is time consuming and depends on the available bandwidth.
 
 head(kpn)
 }
