@@ -63,7 +63,8 @@ setClass("pePathway",
                         ref = "character",
                         boot = "ANY",
                         Pert = "numeric",
-                        Acc = "numeric"
+                        Acc = "numeric",
+                        asGS = "logical"
          ), 
          prototype(map = new("graphNEL")
          )

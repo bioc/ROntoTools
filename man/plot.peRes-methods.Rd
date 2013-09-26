@@ -16,7 +16,7 @@
   \item{comb.pv.func}{the function to combine the p-values
   - takes as input a vector of p-values and returns the
   combined p-value (default:
-  \code{\link{compute.fischer}}).}
+  \code{\link{compute.fisher}}).}
 
   \item{adjust.method}{the name of the method to adjust the
   p-value (see \code{\link{p.adjust}})}

@@ -140,7 +140,10 @@ peNodeRenderInfo <- function(x, y = "Pert",
   
   nFillColor <- rep(zero.col, length(nodes(x@map)))
   names(nFillColor) <- nodes(x@map)
-  pf <- slot(x, y)
+  pfi <- slot(x, y)
+  pf <- rep(0, length(nodes(x@map)))
+  names(pf) <- nodes(x@map)
+  pf[names(pfi)] <- pfi
   nFillColor[pf <= 0] <- colorRampPalette(c(zero.col,neg.col))(256)[as.numeric(cut(abs(pf[pf<=0]), 256))]                                  
   nFillColor[pf >= 0] <- colorRampPalette(c(zero.col,pos.col))(256)[as.numeric(cut(abs(pf[pf>=0]), 256))]
   

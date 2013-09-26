@@ -194,8 +194,14 @@ pe.boot <- function(g, x, ref, nboot, all.genes = F)
                       input = x[names(x) %in% nodes(g)],
                       ref = ref[ref %in% nodes(g)])
 
-  if (is.null(inv) | (length(pePath@input) == 0))
+  if (length(pePath@input) == 0)
     return(NULL)
+  
+  if (is.null(inv))
+  {
+    pePath@asGS <- TRUE
+    return(pePath)
+  }
   
   # same number of DE genes at any position in the pathway 
   # (given by the gene from the pathway in the reference)
@@ -226,7 +232,8 @@ pe.boot <- function(g, x, ref, nboot, all.genes = F)
   xx[names(pePath@input)] <- pePath@input  
   pePath@Pert = (inv %*% xx)[,1];
   pePath@Acc = pePath@Pert - xx
-    
+  pePath@asGS <- FALSE
+  
   return(pePath) 
 }
 

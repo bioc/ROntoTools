@@ -1,0 +1,32 @@
+\name{compute.fisher}
+\alias{compute.fisher}
+\title{Combine independent p-values using the Fisher method}
+\usage{
+  compute.fisher(p, eps = 1e-06)
+}
+\arguments{
+  \item{p}{a vector of independent p-values}
+
+  \item{eps}{the minimal p-value considered (all p-values
+  smaller will be set to this value)}
+}
+\description{
+  Combine independent p-values using the Fisher method
+}
+\examples{
+p <- c(.1, .01)
+compute.fisher(p)
+}
+\author{
+  Calin Voichita and Sorin Draghici
+}
+\references{
+  Tarca AL., Draghici S., Khatri P., Hassan SS., Kim J.,
+  Kim CJ., Kusanovic JP., Romero R.: "A Signaling Pathway
+  Impact Analysis for Microarray Experiments", 2008,
+  Bioinformatics, 2009, 25(1):75-82.
+}
+\seealso{
+  \code{\link{pe}},\code{\link{compute.normalInv}}
+}
+

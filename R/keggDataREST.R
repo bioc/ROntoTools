@@ -167,7 +167,7 @@ keggPathwayGraphs <- function(organism = "hsa",
   pathwayGraphs <- pathwayGraphs[!sapply(pathwayGraphs, is.null)]
   
   if (defaultParameters)
-    save(pathwayGraphs, paste(system.file("extdata",package="ROntoTools"), "/kpgDefault.RData", sep = ""))
+    save(pathwayGraphs, file = paste(system.file("extdata",package="ROntoTools"), "/kpgDefault.RData", sep = ""))
   
   return(pathwayGraphs)
 }

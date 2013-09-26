@@ -14,7 +14,7 @@ addNames <- function(x, nms)
 compute.bootPV <- function(real, dist)
   ( sum(abs(dist - mean(dist)) > abs(real - mean(dist))) + 1 ) / (1 + length(dist))
 
-#' Combine independent p-values using the Fischer method
+#' Combine independent p-values using the Fisher method
 #' 
 #' @param p a vector of independent p-values
 #' @param eps the minimal p-value considered (all p-values smaller will be set to this value)
@@ -23,15 +23,19 @@ compute.bootPV <- function(real, dist)
 #' 
 #' @author Calin Voichita and Sorin Draghici
 #' 
+#' @references
+#' 
+#' Tarca AL., Draghici S., Khatri P., Hassan SS., Kim J., Kim CJ., Kusanovic JP., Romero R.: "A Signaling Pathway Impact Analysis for Microarray Experiments", 2008, Bioinformatics, 2009, 25(1):75-82.
+#' 
 #' @seealso \code{\link{pe}},\code{\link{compute.normalInv}}
 #' 
 #' @examples
 #' 
 #' p <- c(.1, .01)
-#' compute.fischer(p)
+#' compute.fisher(p)
 #' 
 #' @export
-compute.fischer <- function(p, eps = 1e-6)
+compute.fisher <- function(p, eps = 1e-6)
 {
   stopifnot(any(p >= 0 & p<=1))  
   p[p < eps] <- eps
@@ -49,7 +53,11 @@ compute.fischer <- function(p, eps = 1e-6)
 #' 
 #' @author Calin Voichita and Sorin Draghici
 #' 
-#' @seealso \code{\link{pe}},\code{\link{compute.fischer}}
+#' @references
+#' 
+#' Tarca AL., Draghici S., Romero R.: "A Mmore Specific Method To Combine Perturbation and Over-representation Evidence in Pathway Analysis", PSB 2010 poster.
+#' 
+#' @seealso \code{\link{pe}},\code{\link{compute.fisher}}
 #' 
 #' @examples
 #' 

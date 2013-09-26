@@ -3,7 +3,7 @@
 #' 
 #' @usage Summary(x, pathNames = NULL, totalAcc = TRUE, totalPert = TRUE, normalize = TRUE, 
 #'  pPert = TRUE, pAcc = TRUE, pORA = TRUE, 
-#'  comb.pv = c("pPert", "pORA"), comb.pv.func = compute.fischer,
+#'  comb.pv = c("pPert", "pORA"), comb.pv.func = compute.fisher,
 #'  order.by = "pComb", adjust.method = "fdr")
 #' 
 #' @param x Pathways-Express result object obtained using \code{\link{pe}}
@@ -55,7 +55,7 @@
 setMethod("Summary", c("x" = "peRes"),
           function(x, pathNames = NULL, totalAcc = TRUE, totalPert = TRUE, normalize = TRUE, 
                    pPert = TRUE, pAcc = TRUE, pORA = TRUE, 
-                   comb.pv = c("pPert", "pORA"), comb.pv.func = compute.fischer,
+                   comb.pv = c("pPert", "pORA"), comb.pv.func = compute.fisher,
                    order.by = "pComb", adjust.method = "fdr")
           {  
             ifelse <- function(test, trueCase, falseCase){
@@ -67,19 +67,19 @@ setMethod("Summary", c("x" = "peRes"),
             {
               pStats <- NULL
               
-              pStats$totalAcc <- ifelse(totalAcc, get.totalAcc(pePath), NULL)
-              pStats$totalPert <- ifelse(totalPert, get.totalPert(pePath), NULL)
+              pStats$totalAcc <- ifelse(totalAcc, ifelse(!pePath@asGS, get.totalAcc(pePath), NA), NULL)
+              pStats$totalPert <- ifelse(totalPert, ifelse(!pePath@asGS, get.totalPert(pePath), NA), NULL)
               
-              pStats$totalAccNorm <- ifelse(totalAcc & normalize, get.totalAccNorm(pePath), NULL)
-              pStats$totalPertNorm <- ifelse(totalPert & normalize, get.totalPertNorm(pePath), NULL)
+              pStats$totalAccNorm <- ifelse(totalAcc & normalize, ifelse(!pePath@asGS, get.totalAccNorm(pePath), NA), NULL)
+              pStats$totalPertNorm <- ifelse(totalPert & normalize, ifelse(!pePath@asGS, get.totalPertNorm(pePath), NA), NULL)
               
-              pStats$pPert <- ifelse(pPert, compute.pPert(pePath), NULL)
-              pStats$pAcc <- ifelse(pAcc, compute.pAcc(pePath), NULL)
+              pStats$pPert <- ifelse(pPert, ifelse(!pePath@asGS, compute.pPert(pePath), NA), NULL)
+              pStats$pAcc <- ifelse(pAcc, ifelse(!pePath@asGS, compute.pAcc(pePath), NA), NULL)
               
               pStats$pORA <- ifelse(pORA & !x@cutOffFree, compute.pORA(pePath, length(x@input), length(x@ref)), NULL)
               
               pStats$pComb <- ifelse(!is.null(comb.pv) & !any(is.null(pStats[comb.pv])), 
-                                     as.numeric(comb.pv.func(unlist(pStats[comb.pv]))), NULL)
+                                     ifelse(!any(is.na(pStats[comb.pv])), as.numeric(comb.pv.func(unlist(pStats[comb.pv]))), NA), NULL)
               
               return(unlist(pStats))
             }

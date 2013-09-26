@@ -21,7 +21,12 @@ compute.normalInv(p)
 \author{
   Calin Voichita and Sorin Draghici
 }
+\references{
+  Tarca AL., Draghici S., Romero R.: "A Mmore Specific
+  Method To Combine Perturbation and Over-representation
+  Evidence in Pathway Analysis", PSB 2010 poster.
+}
 \seealso{
-  \code{\link{pe}},\code{\link{compute.fischer}}
+  \code{\link{pe}},\code{\link{compute.fisher}}
 }
 

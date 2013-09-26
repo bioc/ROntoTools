@@ -92,7 +92,9 @@ setMethod("plot", signature(x="pePathway", y="character"),
                      tB <- (tB - mean(allB)) / sd(allB)
                      allB <- (allB - mean(allB)) / sd(allB)
                      
-                     plot(density(allB), xlab = y, main = main, ...)
+                     xlim <- c(min(allB, tB), max(allB, tB)) * 1.10
+                     
+                     plot(density(allB, from = xlim[1], to = xlim[2]), xlab = y, main = main, ...)
                      abline(v=0, lwd = .5)
                      abline(v=tB, lwd = 1, col = "red")
                      
@@ -112,7 +114,7 @@ setMethod("plot", signature(x="pePathway", y="character"),
 #' @param y vector of two p-values names to be combined using \code{comb.pv.func} (default: \code{c("pAcc", "pORA")}).
 #' @param ... Arguments to be passed to methods, such as \code{\link{par}}.
 #' @param comb.pv.func the function to combine the p-values - takes as input a vector of p-values 
-#' and returns the combined p-value (default: \code{\link{compute.fischer}}).
+#' and returns the combined p-value (default: \code{\link{compute.fisher}}).
 #' @param adjust.method the name of the method to adjust the p-value (see \code{\link{p.adjust}})
 #' @param threshold corrected p-value threshold
 #' @param eps any value smaller than this will be considered as \code{eps} (default: \code{1e-6}).
@@ -148,7 +150,7 @@ setMethod("plot", signature(x="pePathway", y="character"),
 #' @aliases plot,peRes,missing-method
 #' @export
 setMethod("plot", signature(x="peRes", y="missing"),
-          function(x, y, ... , comb.pv.func = compute.fischer, adjust.method = "fdr", threshold = .05, eps = 1e-6)
+          function(x, y, ... , comb.pv.func = compute.fisher, adjust.method = "fdr", threshold = .05, eps = 1e-6)
           {
             plot(x, y = c("pAcc", "pORA"), ... , comb.pv.func = comb.pv.func, adjust.method = adjust.method,
                  threshold = threshold, eps = eps)
@@ -161,7 +163,7 @@ setMethod("plot", signature(x="peRes", y="missing"),
 #' @aliases plot,peRes,character-method
 #' @export
 setMethod("plot", signature(x="peRes", y="character"),
-          function(x, y, ... , comb.pv.func = compute.fischer, adjust.method = "fdr", threshold = .05, eps = 1e-6)
+          function(x, y, ... , comb.pv.func = compute.fisher, adjust.method = "fdr", threshold = .05, eps = 1e-6)
           {
             
             st <- Summary(x, comb.pv = y, comb.pv.func = comb.pv.func, adjust.method = adjust.method)
