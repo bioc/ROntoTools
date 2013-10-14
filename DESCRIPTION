@@ -1,7 +1,7 @@
 Package: ROntoTools
 Type: Package
 Title: R Onto-Tools suite
-Version: 1.1.2
+Version: 1.2.0
 Author: Calin Voichita <calin@wayne.edu> and Sorin Draghici <sorin@wayne.edu>
 Maintainer: Calin Voichita <calin@wayne.edu>
 Description: Suite of tools for functional analysis
