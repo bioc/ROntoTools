@@ -241,8 +241,9 @@ compute.inverse <- function(M, eps = 1e-5)
 {
   if ( abs(det(M)) >= eps )
   {
-    s = svd(M);
-    inv = s$v %*% diag(1/s$d) %*% t(s$u)
+    inv = tryCatch(solve(M), error = function(e) NULL)
+    if (is.null(inv))
+      return(NULL)
     rownames(inv) <- colnames(inv) <- rownames(M)
     return(inv)
   }else{
