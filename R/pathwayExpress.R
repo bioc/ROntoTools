@@ -197,7 +197,7 @@ pe.boot <- function(g, x, ref, nboot, all.genes = F)
   if (length(pePath@input) == 0)
     return(NULL)
   
-  if (is.null(inv))
+  if (is.null(inv) || (numEdges(g) == 0))
   {
     pePath@asGS <- TRUE
     return(pePath)
