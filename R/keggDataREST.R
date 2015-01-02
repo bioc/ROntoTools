@@ -23,17 +23,11 @@ loadKEGGpathwayDataREST <- function(organism = "hsa",
     
     allPathwayInfo <- lapply(names(pathList), 
                              function(pathID) {
-                               
                                p <- keggGet(pathID, "kgml")
-                               
                                pKgml <- file.path(tmpDir, paste(strsplit(pathID, ":")[[1]][2], ".kgml", sep = ""))
-                               
                                write(p, pKgml)
-                               
                                pathData <- parseKGML(pKgml)
-                               
                                file.remove(pKgml)
-                               
                                if(verbose)
                                  setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
                                return(pathData)
@@ -98,7 +92,7 @@ keggPathwayGraphs <- function(organism = "hsa",
                               verbose = TRUE)
 {
   defaultParameters <- FALSE
-  if ((organism == "hsa") & all(targRelTypes == c("GErel","PCrel","PPrel")) &
+  if ((organism == "hsa") & all(targRelTypes %in% c("GErel","PCrel","PPrel")) &
         (relPercThresh == 0.9) & (nodeOnlyGraphs == FALSE))
     defaultParameters <- TRUE  
   
@@ -124,8 +118,10 @@ keggPathwayGraphs <- function(organism = "hsa",
   counts <- do.call(rbind,lapply(l, function(x) as.vector(x[allRelTypes])))
   colnames(counts) <- allRelTypes
   
+  counts[is.na(counts)] <- 0
+  
   accIndex <- rowSums(counts[,targRelTypes], na.rm=T) / rowSums(counts, na.rm=T) >= relPercThresh
-  accIndex[is.na(accIndex)] <- FALSE  
+  accIndex[is.na(accIndex)] <- nodeOnlyGraphs
   allPathwayInfo <- allPathwayInfo[accIndex]
   
   names(allPathwayInfo) <- sapply(allPathwayInfo, getName)
@@ -138,24 +134,45 @@ keggPathwayGraphs <- function(organism = "hsa",
   
   pathwayGraphs <- lapply(allPathwayInfo, function(g) 
   {
-    g <- KEGGgraph::KEGGpathway2Graph(g)
-    kg <- new("graphNEL", nodes(g), edges(g), edgemode = "directed")
     
+#     tryCatch(
+      g <- KEGGpathway2Graph(g, expandGenes=TRUE)
+#       , error = function(e) {})    
+    if (class(g) != "graphNEL") {
+      return(NULL)
+    }
+    
+    kg <- new("graphNEL", nodes(g), edges(g), edgemode = "directed")
+
     if (length(getKEGGedgeData(g)) == 0)
     {
       if (verbose)
         setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
-      return(NULL)
+      if (nodeOnlyGraphs)
+        return(kg)
+      else
+        return(NULL)
     }
-    edgeDataDefaults(kg, "subtype") <- NA  
-        
-    relGeneTable <- data.frame(cbind(
+    edgeDataDefaults(kg, "subtype") <- NA
+    
+
+    cf <- cbind(
       do.call(rbind, strsplit(names(getKEGGedgeData(g)), '~')),
       sapply(getKEGGedgeData(g), function(e) 
         paste(lapply(getSubtype(e), getName), collapse=","))
-    ), stringsAsFactors = FALSE)
+    );
+
+    if (nrow(cf) < 2) {
+      ucf <- cf
+    } else {
+      ucf <- cf[unique(rownames(cf)),]
+      ucf[,3] <- tapply(cf[,3], rownames(cf), function(ll) return(paste( unique(ll), collapse = ',')))[rownames(ucf)]
+    }
+    
+
+    relGeneTable <- data.frame(ucf, stringsAsFactors = FALSE)
     names(relGeneTable) <- c("from","to","subtype")
-        
+
     edgeData(kg, relGeneTable$from, relGeneTable$to, "subtype") <- relGeneTable$subtype
 
     if (verbose)
@@ -213,3 +230,86 @@ keggPathwayNames <- function(organism = "hsa",
   return(allNames)
 }
 
+#' Modified version of the same function from KEGGgraph
+#' 
+#' @keywords internal
+KEGGpathway2Graph <- function (pathway, genesOnly = TRUE, expandGenes = TRUE) 
+{
+  stopifnot(is(pathway, "KEGGPathway"))
+  pathway <- splitKEGGgroup(pathway)
+  if (expandGenes) {
+    pathway <- expandKEGGPathway(pathway)
+  }
+  knodes <- nodes(pathway)
+  kedges <- unique(edges(pathway))
+  node.entryIDs <- getEntryID(knodes)
+  edge.entryIDs <- getEntryID(kedges)
+  V <- node.entryIDs
+  edL <- vector("list", length = length(V))
+  names(edL) <- V
+  if (is.null(nrow(edge.entryIDs))) {
+    for (i in seq(along = edL)) {
+      edL[[i]] <- list()
+    }
+  }
+  else {
+    for (i in 1:length(V)) {
+      id <- node.entryIDs[i]
+      hasRelation <- id == edge.entryIDs[, "Entry1ID"]
+      if (!any(hasRelation)) {
+        edL[[i]] <- list(edges = NULL)
+      }
+      else {
+        entry2 <- unname(edge.entryIDs[hasRelation, "Entry2ID"])
+        edL[[i]] <- list(edges = entry2)
+      }
+    }
+  }
+  gR <- new("graphNEL", nodes = V, edgeL = edL, edgemode = "directed")
+  names(kedges) <- sapply(kedges, function(x) paste(getEntryID(x), 
+                                                    collapse = "~"))
+  env.node <- new.env()
+  env.edge <- new.env()
+  assign("nodes", knodes, envir = env.node)
+  assign("edges", kedges, envir = env.edge)
+  nodeDataDefaults(gR, "KEGGNode") <- env.node
+  edgeDataDefaults(gR, "KEGGEdge") <- env.edge
+  if (genesOnly) {    
+    gR <- subGraphByNodeType(gR, "gene")
+  }
+  return(gR)
+}
+
+#' Modified version of the same function from KEGGgraph
+#' 
+#' @keywords internal
+subGraphByNodeType <- function (graph, type = "gene") 
+{
+  kegg.node.data <- getKEGGnodeData(graph)
+  types <- sapply(kegg.node.data, getType)
+  isType <- grep(type, types)
+  if (!any(isType)) {
+    stop("No '", type, "' type found in the file, maybe it is a map file. Please try parsing the file with 'genesOnly=FALSE'\n")
+  }
+  new.nodes <- names(types[isType])
+  new.edges <- edges(graph)
+  new.edges <- new.edges[names(new.edges) %in% new.nodes]
+  new.edges <- lapply(new.edges, function(eL) return(eL[eL %in% new.nodes]))
+  
+  subgraph <- new("graphNEL", new.nodes, new.edges, edgemode = "directed")
+    
+  subnodes <- new.nodes
+  subedges <- getRgraphvizEdgeNames(subgraph)
+  keggnodes <- get("nodes", nodeDataDefaults(graph, "KEGGNode"))
+  keggedges <- get("edges", edgeDataDefaults(graph, "KEGGEdge"))
+  subkeggnodes <- keggnodes[subnodes]
+  subkeggedges <- keggedges[subedges]
+  env.node <- new.env()
+  env.edge <- new.env()
+  assign("nodes", subkeggnodes, envir = env.node)
+  assign("edges", subkeggedges, envir = env.edge)
+  nodeDataDefaults(subgraph, "KEGGNode") <- env.node
+  edgeDataDefaults(subgraph, "KEGGEdge") <- env.edge
+  
+  return(subgraph)
+}

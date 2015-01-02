@@ -1,4 +1,5 @@
 \name{Summary}
+\alias{Summary}
 \alias{Summary,peRes-method}
 \alias{Summary.peRes}
 \title{Summarize the results of a Pathway-Express analysis}
