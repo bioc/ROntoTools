@@ -1,4 +1,4 @@
-#' Pathway-Express: Pathway analysis of signaling pathways
+#' Primary dis-regulation: Pathway analysis approach based on the unexplained dis-regulation of genes 
 #' 
 #' 
 #' @param x named vector of log fold changes for the differentially expressed genes; \code{names(x)} must use the same id's as \code{ref} and the nodes of the \code{graphs}
@@ -15,23 +15,19 @@
 #' 
 #' @return
 #' 
-#' An object of class \code{\link{peRes-class}}.
+#' An object of class \code{\link{pDisRes-class}}.
 #' 
 #' @author
 #' 
-#' Calin Voichita and Sorin Draghici
+#' Calin Voichita, Sahar Ansari and Sorin Draghici
 #' 
 #' @references
 #' 
 #' Voichita C., Donato M., Draghici S.: "Incorporating gene significance in the impact analysis of signaling pathways", IEEE Machine Learning and Applications (ICMLA), 2012 11th International Conference on, Vol. 1, p.126-131, 2012
+#' Ansari, S., Voichita, C., Donato, M., Tagett, R., & Draghici, S. A Novel Pathway Analysis Approach Based on the Unexplained Disregulation of Genes.
 #' 
-#' Tarca AL., Draghici S., Khatri P., Hassan SS., Kim J., Kim CJ., Kusanovic JP., Romero R.: "A Signaling Pathway Impact Analysis for Microarray Experiments", 2008, Bioinformatics, 2009, 25(1):75-82.
 #' 
-#' Khatri P., Draghici S., Tarca AL., Hassan SS., Romero R.: "A system biology approach for the steady-state analysis of gene signaling networks". Progress in Pattern Recognition, Image Analysis and Applications, Lecture Notes in Computer Science. 4756:32-41, November 2007. 
-#' 
-#' Draghici S., Khatri P., Tarca A.L., Amin K., Done A., Voichita C., Georgescu C., Romero R.: "A systems biology approach for pathway level analysis". Genome Research, 17, 2007. 
-#' 
-#' @seealso \code{\link{Summary}}, \code{\link{plot,peRes,missing-method}}, 
+#' @seealso \code{\link{Summary}}, 
 #' \code{\link{keggPathwayGraphs}}, \code{\link{setNodeWeights}}, \code{\link{setEdgeWeights}}
 #' 
 #' @examples
@@ -81,13 +77,13 @@
 #' # perform the pathway analysis
 #' # in order to obtain accurate results the number of boostraps, nboot, should 
 #' # be increase to a number like 2000
-#' peRes <- pe(fc, graphs = kpg, ref = ref, nboot = 100, verbose = TRUE)
+#' pDisRes <- pDis(fc, graphs = kpg, ref = ref, nboot = 100, verbose = TRUE)
 #' 
 #' # obtain summary of results
-#' head(Summary(peRes))
+#' head(Summary(pDisRes))
 #' 
 #' @export
-pe <- function(x, graphs, ref = NULL, nboot = 2000, verbose = TRUE, cluster = NULL, seed = NULL)
+pDis <- function(x, graphs, ref = NULL, nboot = 2000, verbose = TRUE, cluster = NULL, seed = NULL)
 {
   cutOffFree <- FALSE
   if (is.null(ref))
@@ -118,8 +114,8 @@ pe <- function(x, graphs, ref = NULL, nboot = 2000, verbose = TRUE, cluster = NU
     x <- x[!is.na(match(names(x), ref))]
   }
   
-  peRes <- pf.helper(x = x, ref = ref, graphs = graphs, nboot = nboot, verbose = verbose, cluster = cluster, seed = seed)
-  peRes@cutOffFree <- cutOffFree
+  pDisRes <- pDis.helper(x = x, ref = ref, graphs = graphs, nboot = nboot, verbose = verbose, cluster = cluster, seed = seed)
+  pDisRes@cutOffFree <- cutOffFree
   
   if(is.null(preservedSeed))
   {
@@ -128,12 +124,12 @@ pe <- function(x, graphs, ref = NULL, nboot = 2000, verbose = TRUE, cluster = NU
   }
   else
     .Random.seed <- preservedSeed
-    
-  return(peRes)
+  
+  return(pDisRes)
 }
 
 #' @import parallel
-pf.helper <- function(x, graphs, ref = NULL, nboot = 2000, verbose = TRUE, cluster = NULL, seed = NULL)
+pDis.helper <- function(x, graphs, ref = NULL, nboot = 2000, verbose = TRUE, cluster = NULL, seed = NULL)
 {
   if(verbose)
   {
@@ -150,7 +146,7 @@ pf.helper <- function(x, graphs, ref = NULL, nboot = 2000, verbose = TRUE, clust
     allBoot <- lapply(graphs, function(g, seed) {
       if(!is.null(seed))
         set.seed(seed)
-      ret <- pe.boot(g, x = x, ref = ref, nboot = nboot)
+      ret <- pDis.boot(g, x = x, ref = ref, nboot = nboot)
       if(verbose)
         setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
       return(ret)
@@ -158,13 +154,13 @@ pf.helper <- function(x, graphs, ref = NULL, nboot = 2000, verbose = TRUE, clust
   }
   else
   {
-    clusterExport(cluster, c("pe.boot", "compute.inverse", "compute.B"))
+    clusterExport(cluster, c("pDis.boot", "compute.inverse", "compute.B_pDis"))
     clusterEvalQ(cluster, library(ROntoTools))
     
     allBoot <- parLapply(cluster, graphs, function(g, seed) {
       if(!is.null(seed))
         set.seed(seed)
-      ret <- pe.boot(g, x = x, ref = ref, nboot = nboot)
+      ret <- pDis.boot(g, x = x, ref = ref, nboot = nboot)
       return(ret)
     }, seed = seed)
     
@@ -178,29 +174,29 @@ pf.helper <- function(x, graphs, ref = NULL, nboot = 2000, verbose = TRUE, clust
   
   allBoot <- allBoot[!sapply(allBoot, is.null)]
   
-  peRes <- new("peRes", pathways = allBoot, input = x, ref = ref)
+  pDisRes <- new("pDisRes", pathways = allBoot, input = x, ref = ref)
   
-  return(peRes)
+  return(pDisRes)
 }
 
 #' @import boot
 #' @keywords internal
-pe.boot <- function(g, x, ref, nboot, all.genes = F)
+pDis.boot <- function(g, x, ref, nboot, all.genes = F)
 {
-  inv <- compute.inverse(compute.B(g))
-    
-  pePath <- new("pePathway", 
-                      map = g, 
-                      input = x[names(x) %in% nodes(g)],
-                      ref = ref[ref %in% nodes(g)])
-
-  if (length(pePath@input) == 0)
+  inv <- (compute.B_pDis(g))
+  
+  pDisPath <- new("pDisPathway", 
+                map = g, 
+                input = x[names(x) %in% nodes(g)],
+                ref = ref[ref %in% nodes(g)])
+  
+  if (length(pDisPath@input) == 0)
     return(NULL)
   
-  if (is.null(inv) || (numEdges(g) == 0))
+  if (is.null(inv))
   {
-    pePath@asGS <- TRUE
-    return(pePath)
+    pDisPath@asGS <- TRUE
+    return(pDisPath)
   }
   
   # same number of DE genes at any position in the pathway 
@@ -210,48 +206,34 @@ pe.boot <- function(g, x, ref, nboot, all.genes = F)
     names(y) <- sample(l$ref, length(x))
     return(y)
   }
-    
-  pePath@boot <- boot(pePath@input, 
-    function(x, inv) {
-      xx <- rep(0, nrow(inv));  names(xx) <- rownames(inv);
-      xx[names(x)] <- x
-      xx <- xx * nodeWeights(pePath@map, names(xx))
-      tt = inv %*% xx;
-      ret <- c(sum(abs(tt-xx)), sum(abs(tt)))
-      names(ret) <- c("tAcc", "tPert")
-      return(ret)
-    }, 
-            nboot,
-            "parametric", ran.gen = ran.gen.de, mle = list(ref = pePath@ref, fc = as.numeric(x)),
-            inv = inv
-    )
-  colnames(pePath@boot$t) <- names(pePath@boot$t0)
+  
+  pDisPath@boot <- boot(pDisPath@input, 
+                      function(x, inv) {
+                        xx <- rep(0, nrow(inv));  names(xx) <- rownames(inv);
+                        xx[names(x)] <- x
+                        xx <- xx * nodeWeights(pDisPath@map, names(xx))
+                        tt = inv %*% xx;
+                        ret <- c(sum(abs(tt)))
+                        names(ret) <- c("tpDis")
+                        return(ret)
+                      }, 
+                      nboot,
+                      "parametric", ran.gen = ran.gen.de, mle = list(ref = pDisPath@ref, fc = as.numeric(x)),
+                      inv = inv
+  )
+  colnames(pDisPath@boot$t) <- names(pDisPath@boot$t0)
   
   xx <- rep(0, nrow(inv))
   names(xx) <- rownames(inv)
-  xx[names(pePath@input)] <- pePath@input  
-  pePath@Pert = (inv %*% xx)[,1];
-  pePath@Acc = pePath@Pert - xx
-  pePath@asGS <- FALSE
+  xx[names(pDisPath@input)] <- pDisPath@input  
+  pDisPath@pDis = (inv %*% xx)[,1];
+  pDisPath@asGS <- FALSE
   
-  return(pePath) 
+  return(pDisPath) 
 }
 
-compute.inverse <- function(M, eps = 1e-5)
-{
-  if ( abs(det(M)) >= eps )
-  {
-    inv = tryCatch(solve(M), error = function(e) NULL)
-    if (is.null(inv))
-      return(NULL)
-    rownames(inv) <- colnames(inv) <- rownames(M)
-    return(inv)
-  }else{
-    return(NULL)
-  }
-}
 
-compute.B <- function(g, non.zero = TRUE)
+compute.B_pDis <- function(g, non.zero = TRUE)
 {
   if (non.zero)
     # number of downstream genes (like in SPIA)
@@ -265,9 +247,8 @@ compute.B <- function(g, non.zero = TRUE)
   
   # compute B = (I - beta/nds)
   #B <- t(diag(length(nodes(g))) - as(g, "matrix") / nds)
+  #
   B <- diag(length(nodes(g))) - t(as(g, "matrix")) / matrix(nds, byrow=TRUE, nrow = length(nds), ncol = length(nds))
-  
-  return(B)
+   return(B)
 }
-
-  
+ 

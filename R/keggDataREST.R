@@ -82,7 +82,6 @@ loadKEGGpathwayDataREST <- function(organism = "hsa",
 #' head(nodes(kpg[["path:hsa04110"]]))
 #' head(edges(kpg[["path:hsa04110"]]))
 #' 
-#' @importMethodsFrom KEGGgraph
 #' @export
 keggPathwayGraphs <- function(organism = "hsa", 
                               targRelTypes = c("GErel","PCrel","PPrel"),

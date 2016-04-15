@@ -1,6 +1,6 @@
-#' Extract edge render information from a \code{pePathway} object
+#' Extract edge render information from a \code{pePathway-class} object
 #' 
-#' @param x an object of class \code{\link{pePathway}}
+#' @param x an object of class \code{\link{pePathway-class}}
 #' @param pos.col color of the edges with possitive weight
 #' @param pos.lty line type of the edges with possitive weight
 #' @param pos.ah arrow head of the edges with possitive weight 
@@ -11,7 +11,7 @@
 #' @param zero.lty color of the edges with zero weight
 #' @param zero.ah color of the edges with zero weight
 #' 
-#' @value a named list as expected by \code{\link{edgeRenderInfo}}
+#' @return a named list as expected by \code{\link{edgeRenderInfo}}
 #' 
 #' @author Calin Voichita and Sorin Draghici
 #' 
@@ -76,17 +76,17 @@ peEdgeRenderInfo <- function(x,
   ))
 }
 
-#' Extract node render information from a \code{pePathway} object
+#' Extract node render information from a \code{pePathway-class} object
 #' 
-#' @param x an object of class \code{\link{pePathway}}
-#' @param y a string representing the factor to be represented (\code{Pert, Acc} or \code{input}; see \code{\link{pePathway}})
+#' @param x an object of class \code{\link{pePathway-class}}
+#' @param y a string representing the factor to be represented (\code{Pert, Acc} or \code{input}; see \code{\link{pePathway-class}})
 #' @param input.shape shape of nodes that have measured expression change
 #' @param default.shape shape of all other nodes
 #' @param pos.col color of nodes with a positive \code{y} factor
 #' @param neg.col color of nodes with a negative \code{y} factor
 #' @param zero.col color of nodes with the \code{y} factor equal to zero
 #' 
-#' @value a named list as expected by \code{\link{nodeRenderInfo}}
+#' @return a named list as expected by \code{\link{nodeRenderInfo}}
 #' 
 #' @author Calin Voichita and Sorin Draghici
 #' 

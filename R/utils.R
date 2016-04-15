@@ -19,7 +19,7 @@ compute.bootPV <- function(real, dist)
 #' @param p a vector of independent p-values
 #' @param eps the minimal p-value considered (all p-values smaller will be set to this value)
 #' 
-#' @value the combined p-value
+#' @return the combined p-value
 #' 
 #' @author Calin Voichita and Sorin Draghici
 #' 
@@ -49,7 +49,7 @@ compute.fisher <- function(p, eps = 1e-6)
 #' @param p a vector of independent p-values
 #' @param eps the minimal p-value considered (all p-values smaller will be set to this value)
 #' 
-#' @value the combined p-value
+#' @return the combined p-value
 #' 
 #' @author Calin Voichita and Sorin Draghici
 #' 

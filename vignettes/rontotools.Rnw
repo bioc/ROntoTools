@@ -19,7 +19,7 @@
 \begin{document}
 \SweaveOpts{concordance=TRUE}
 \title{ROntoTools: The R Onto-Tools suite}
-\author{Calin Voichita and Sorin Draghici\\
+\author{Calin Voichita, Sahar Ansari and Sorin Draghici\\
 Department of Computer Science, Wayne State University, Detroit MI 48201}
 \maketitle
 
@@ -288,6 +288,102 @@ renderGraph(g)
 \caption{Perturbation propagation on the \emph{T cell receptor signaling pathway}.}
 \label{fig:pePathway_graph2}
 \end{figure}
+
+\section{Primary dis\--regulation}
+Primary dis\--regulation analysis (\Rmethod{pDis}) is a tool for the analysis of signaling pathways.
+This is the original implementation of the algorithm introduced in \cite{ansari2016novel}. This method takes into consideration the primary dis\--regulation of a given gene itself and the effects of signaling coming from upstream.
+Similar to Pathway Express, primary dis\--regulation uses two sources of data: one is the experiment data and the other is the database of pathways.
+
+The pathway database can be obtained from KEGG as expalined in section Pathway database.
+
+For example, to download and parse the signaling pathways available in KEGG use:
+<<eval=TRUE, echo=TRUE>>=
+require(graph)
+require(ROntoTools)
+kpg <- keggPathwayGraphs("hsa", verbose = FALSE)
+@
+
+The above code will load the available cached data for human (i.e., KEGG id \emph{hsa}). To update the cache and download the latest KEGG pathways available use the \Rfunction{updateCache} parameter:
+<<eval=FALSE, echo=TRUE>>=
+kpg <- keggPathwayGraphs("hsa", updateCache = TRUE, verbose = TRUE)
+@
+\noindent This command is time consuming and depends on the available bandwith.
+
+To retrieve the title of the pathways and not just their ids the function \Rfunction{keggPathwayNames} can be used:
+<<eval=TRUE, echo=TRUE>>=
+kpn <- keggPathwayNames("hsa")
+head(kpn)
+@
+
+
+As an example, a publicly avaiable data is provided in the package. For more information please refer to Experimental data section. 
+
+<<eval=TRUE, echo=TRUE>>=
+load(system.file("extdata/E-GEOD-21942.topTable.RData", package = "ROntoTools"))
+head(top)
+@
+
+%The next step is to eliminate probes with no associated gene:
+%<<eval=TRUE, echo=TRUE>>=
+%top <- top[!is.na(top$entrez),]
+%head(top)
+%@
+%
+%For each gene keep only the most significant probe (the table is already ordered by p-value):
+%<<eval=TRUE, echo=TRUE>>=
+%top <- top[!duplicated(top$entrez),]
+%head(top)
+%@
+
+Select differentially expressed genes at 1\% and save their fold change in a vector $fc$ and their p-values in a vector $pv$:
+<<eval=TRUE, echo=TRUE>>=
+fc <- top$logFC[top$adj.P.Val <= .01]
+names(fc) <- top$entrez[top$adj.P.Val <= .01]
+
+pv <- top$P.Value[top$adj.P.Val <= .01]
+names(pv) <- top$entrez[top$adj.P.Val <= .01]
+
+head(fc)
+
+head(pv)
+@
+
+Alternatively, an analysis with all genes can be performed:
+<<eval=TRUE, echo=TRUE>>=
+fcAll <- top$logFC
+names(fcAll) <- top$entrez
+
+pvAll <- top$P.Value
+names(pvAll) <- top$entrez
+@
+
+The reference contains all the genes measured in the analysis:
+<<eval=TRUE, echo=TRUE>>=
+ref <- top$entrez
+head(ref)
+@
+
+\subsection{Pathway analysis and results summary}
+
+Here are the input needed to run a sample test:
+\begin{itemize}
+\item the pathway database with the experiment specific gene significance - \Robject {kpg}
+\item the experiment data - \Robject{fc} and \Robject{ref}
+\end{itemize}
+
+\noindent To perform the analysis the function \Rfunction{pDis} is used (increase the parameter \Robject{nboot} to obtain more accurate results):
+<<eval=TRUE, echo=TRUE>>=
+pDisRes <- pDis(x = fc, graphs = kpg, ref = ref,  nboot = 200, verbose = FALSE)
+@
+
+The result object can be summarized in a table format with the desired columns using the function \Rfunction{Summary}:
+<<eval=TRUE, echo=TRUE>>=
+head(Summary(pDisRes))
+
+head(Summary(pDisRes, pathNames = kpn, totalpDis = FALSE,
+              pORA = FALSE, comb.pv = NULL, order.by = "ppDis"))
+@
+
 
 
 \bibliographystyle{abbrv}

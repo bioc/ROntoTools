@@ -1,19 +1,3 @@
-# setMethod("plot", signature(x="pePathway", y="ANY"),
-#           function(x, y, ...){
-#             
-#             nShape <- rep("circle", length(nodes(x@map)))
-#             names(nShape) <- nodes(x@map)
-#             nShape[names(x@input)] <- "box"
-#             
-#             m <- as(x@map, "matrix")
-#             nodeToPlot <- nodes(x@map)[(colSums(abs(m)) != 0) & (rowSums(abs(m)) != 0)]
-#             
-#             plot(x@map,  nodeAttrs = list(
-#               fillcolor = pf2col(x@PF), 
-#               fontsize = addNames(340.0, nodes(x@map)),
-#               shape = nShape
-#               ))
-#           })
 
 compute.pAcc <- function(pePath)
   ifelse( !all(pePath@boot$t[,"tAcc"] == 0),

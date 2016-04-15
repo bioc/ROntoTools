@@ -6,15 +6,16 @@
 #' statistics of the same factors.
 #' 
 #' 
-#' @param x an object of type \code{\link{pePathway}}
-#' @param y if provided, the factor to be ploted (either \code{Acc} (default) or \code{Pert}; see \code{\link{pePathway}})
+#' @param x an object of type \code{\link{pePathway-class}}
+#' @param y if provided, the factor to be ploted (either \code{Acc} (default) or \code{Pert}; see \code{\link{pePathway-class}})
+#' @param main title
 #' @param ... Arguments to be passed to methods, such as \code{\link{par}}
 #' @param type type of plot (either \code{two.way} (default) or \code{boot})
 #' @param eps any value smaller than this will be ploted as 0
 #' 
 #' @author Calin Voichita and Sorin Draghici
 #' 
-#' @seealso \code{\link{pe}}, \code{\link{plot.peRes}}, \code{\link{peNodeRenderInfo}}, \code{\link{peEdgeRenderInfo}}
+#' @seealso \code{\link{pe}}, \code{\link{plot,peRes,missing-method}}, \code{\link{peNodeRenderInfo}}, \code{\link{peEdgeRenderInfo}}
 #' 
 #' @examples
 #' 
@@ -41,10 +42,7 @@
 #' plot(peRes@@pathways[[50]], "Pert", type = "boot", main = "Perturbation factor")
 #' 
 #' @rdname plot.pePathway-methods
-#' @name plot.pePathway
 #' 
-#' @aliases plot.pePathway
-#' @aliases plot,pePathway,missing-method
 #' @export
 setMethod("plot", signature(x="pePathway", y="missing"),
           function(x, y, ..., type = "two.way", eps = 1e-6)
@@ -55,8 +53,6 @@ setMethod("plot", signature(x="pePathway", y="missing"),
 
 #' @rdname plot.pePathway-methods
 #' 
-#' @aliases plot.pePathway
-#' @aliases plot,pePathway,character-method
 #' @export
 setMethod("plot", signature(x="pePathway", y="character"),
           function(x, y, main = "", ... , type = "two.way", eps = 1e-6)
@@ -110,7 +106,7 @@ setMethod("plot", signature(x="pePathway", y="character"),
 #' 
 #' @description Display a two-way plot using two of the p-values from the Pathway-Express analysis.
 #' 
-#' @param x an object of type \code{\link{peRes}}
+#' @param x an object of type \code{\link{peRes-class}}
 #' @param y vector of two p-values names to be combined using \code{comb.pv.func} (default: \code{c("pAcc", "pORA")}).
 #' @param ... Arguments to be passed to methods, such as \code{\link{par}}.
 #' @param comb.pv.func the function to combine the p-values - takes as input a vector of p-values 
@@ -121,7 +117,7 @@ setMethod("plot", signature(x="pePathway", y="character"),
 #' 
 #' @author Calin Voichita and Sorin Draghici
 #' 
-#' @seealso \code{\link{pe}}, \code{\link{Summary.peRes}}, \code{\link{plot.pePathway}}
+#' @seealso \code{\link{pe}}, \code{\link{summary.peRes}}, \code{\link{plot,pePathway,missing-method}}
 #' 
 #' @examples
 #' 
@@ -144,10 +140,7 @@ setMethod("plot", signature(x="pePathway", y="character"),
 #' plot(peRes, c("pPert","pORA"), comb.pv.func = compute.normalInv, threshold = .01)
 #' 
 #' @rdname plot.peRes-methods
-#' @name plot.peRes
 #' 
-#' @aliases plot.peRes
-#' @aliases plot,peRes,missing-method
 #' @export
 setMethod("plot", signature(x="peRes", y="missing"),
           function(x, y, ... , comb.pv.func = compute.fisher, adjust.method = "fdr", threshold = .05, eps = 1e-6)
@@ -158,9 +151,7 @@ setMethod("plot", signature(x="peRes", y="missing"),
 )
 
 #' @rdname plot.peRes-methods
-#' 
-#' @aliases plot.peRes
-#' @aliases plot,peRes,character-method
+#'
 #' @export
 setMethod("plot", signature(x="peRes", y="character"),
           function(x, y, ... , comb.pv.func = compute.fisher, adjust.method = "fdr", threshold = .05, eps = 1e-6)
