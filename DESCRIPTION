@@ -1,7 +1,7 @@
 Package: ROntoTools
 Type: Package
 Title: R Onto-Tools suite
-Version: 2.0.0
+Version: 2.1.0
 Author: Calin Voichita <calin@wayne.edu> and Sahar Ansari
     <saharansari@wayne.edu> and Sorin Draghici <sorin@wayne.edu>
 Maintainer: Calin Voichita <calin@wayne.edu>
