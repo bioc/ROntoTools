@@ -17,7 +17,7 @@ compute.bootPV <- function(real, dist)
 #' Combine independent p-values using the Fisher method
 #' 
 #' @param p a vector of independent p-values
-#' @param eps the minimal p-value considered (all p-values smaller will be set to this value)
+#' @param eps the minimal p-value considered (all p-values smaller will be set to this value), default value 1e-24
 #' 
 #' @return the combined p-value
 #' 
@@ -35,7 +35,7 @@ compute.bootPV <- function(real, dist)
 #' compute.fisher(p)
 #' 
 #' @export
-compute.fisher <- function(p, eps = 1e-6)
+compute.fisher <- function(p, eps = 1e-24) #default eps changed 2023-09-14 from 1e-6 to 1e-24
 {
   stopifnot(any(p >= 0 & p<=1))  
   p[p < eps] <- eps

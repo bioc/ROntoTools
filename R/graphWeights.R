@@ -97,7 +97,7 @@ setNodeWeights <- function(graphList, weights = NULL, defaultWeight = 1)
 #' @param graphList a list of \code{\link{graphNEL}} objects
 #' @param edgeTypeAttr edge attribute to be considered as the edge type. If the edge has multiple types, 
 #'                     the edge type attribute is considered as a comma separeted list of types
-#' @param edgeWeightByType named list of weigths, where the names of the list are the 
+#' @param edgeWeightByType named list of weights, where the names of the list are the
 #'                         edge type (values of the attribute defined by \code{edgeTypeAttr})
 #' @param defaultWeight default value for an edge with a type not defined in \code{edgeWeightByType}
 #' @param combineWeights for the edges with multiple types, the function to be applied on the vector of weights
@@ -136,7 +136,7 @@ setEdgeWeights <- function(graphList,
                         if(nrow(gftM) == 0)
                           return(g)
                         
-                        weigths <- sapply(strsplit(unlist(edgeData(g, gftM[,1], gftM[,2], edgeTypeAttr)), ","),
+                        weights <- sapply(strsplit(unlist(edgeData(g, gftM[,1], gftM[,2], edgeTypeAttr)), ","),
                                           function(x){
                                             weightNames <- names(edgeWeightByType)[match(x, names(edgeWeightByType))]
                                             weightNames <- weightNames[!is.na(weightNames)]
@@ -147,7 +147,7 @@ setEdgeWeights <- function(graphList,
                                             return(combineWeights(unlist(edgeWeightByType[weightNames])))
                                           })
                         
-                        suppressWarnings(g <- addEdge(gftM[,1], gftM[,2], g, weigths))
+                        suppressWarnings(g <- addEdge(gftM[,1], gftM[,2], g, weights))
                         
                         return(g)
                       })
